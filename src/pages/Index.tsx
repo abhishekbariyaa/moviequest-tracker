@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import MovieSearch from '@/components/MovieSearch';
 import MovieCollection from '@/components/MovieCollection';
+import MovieCollectionTable from '@/components/MovieCollectionTable';
 import { useMovieCollection } from '@/hooks/useMovieCollection';
 import { MovieStatus } from '@/types/movie';
 import { Toaster } from '@/components/ui/toaster';
-import { FilmIcon } from 'lucide-react';
+import { FilmIcon, TableIcon, GridIcon } from 'lucide-react';
 
 const Index = () => {
   const { 
@@ -16,6 +17,8 @@ const Index = () => {
     updateMovieStatus, 
     filterByStatus 
   } = useMovieCollection();
+  
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -42,14 +45,43 @@ const Index = () => {
         </div>
         
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Your Collection</h2>
-          <MovieCollection
-            movies={filteredMovies}
-            activeFilter={activeFilter}
-            onFilterChange={filterByStatus}
-            onStatusChange={updateMovieStatus}
-            onRemoveMovie={removeMovie}
-          />
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-gray-900">Your Collection</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-gray-200' : 'bg-white'}`}
+                title="Grid view"
+              >
+                <GridIcon size={18} />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-md ${viewMode === 'table' ? 'bg-gray-200' : 'bg-white'}`}
+                title="Table view"
+              >
+                <TableIcon size={18} />
+              </button>
+            </div>
+          </div>
+          
+          {viewMode === 'grid' ? (
+            <MovieCollection
+              movies={filteredMovies}
+              activeFilter={activeFilter}
+              onFilterChange={filterByStatus}
+              onStatusChange={updateMovieStatus}
+              onRemoveMovie={removeMovie}
+            />
+          ) : (
+            <MovieCollectionTable
+              movies={filteredMovies}
+              activeFilter={activeFilter}
+              onFilterChange={filterByStatus}
+              onStatusChange={updateMovieStatus}
+              onRemoveMovie={removeMovie}
+            />
+          )}
         </div>
       </main>
       
