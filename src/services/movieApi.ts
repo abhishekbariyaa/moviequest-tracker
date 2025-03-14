@@ -2,7 +2,7 @@
 import { MovieDetails, MovieSearchResult } from '@/types/movie';
 
 // Using a valid API key for OMDB API
-const API_KEY = 'f9ac61e0';
+const API_KEY = '76231dde';
 const BASE_URL = 'https://www.omdbapi.com/';
 
 export const searchMovies = async (query: string): Promise<MovieSearchResult[]> => {
