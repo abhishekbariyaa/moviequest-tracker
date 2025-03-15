@@ -5,12 +5,13 @@ import { cn } from '@/lib/utils';
 import { CheckIcon, ClockIcon, PauseIcon, PlayIcon, BookmarkIcon } from 'lucide-react';
 
 interface StatusSelectorProps {
+  id?: string; // Added id as an optional property
   currentStatus: MovieStatus;
   onChange: (status: MovieStatus) => void;
   className?: string;
 }
 
-const StatusSelector = ({ currentStatus, onChange, className }: StatusSelectorProps) => {
+const StatusSelector = ({ id, currentStatus, onChange, className }: StatusSelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const statusOptions: { value: MovieStatus; label: string; icon: React.ReactNode; color: string }[] = [

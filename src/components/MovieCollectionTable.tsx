@@ -233,7 +233,7 @@ const MovieCollectionTable = ({
                       <StatusSelector 
                         id={movie.id}
                         currentStatus={movie.status}
-                        onStatusChange={onStatusChange}
+                        onChange={(status) => onStatusChange(movie.id, status)}
                       />
                     </TableCell>
                     <TableCell>
