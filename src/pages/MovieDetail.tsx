@@ -5,16 +5,13 @@ import { Movie, MovieStatus } from '@/types/movie';
 import { useMovieCollection } from '@/hooks/useMovieCollection';
 import { 
   ArrowLeftIcon, 
-  CalendarIcon, 
-  ClockIcon, 
+  CalendarIcon,
   FilmIcon, 
-  GlobeIcon,
   StarIcon, 
   TagIcon, 
   TrashIcon, 
   UserIcon, 
   VideoIcon,
-  TvIcon
 } from 'lucide-react';
 import StatusSelector from '@/components/StatusSelector';
 import { Button } from '@/components/ui/button';
@@ -204,33 +201,6 @@ const MovieDetail = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <Separator />
-            
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Where to Watch</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                  <TvIcon size={24} className="mx-auto mb-2 text-blue-500" />
-                  <p className="font-medium text-gray-800">Netflix</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                  <TvIcon size={24} className="mx-auto mb-2 text-green-500" />
-                  <p className="font-medium text-gray-800">Hulu</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                  <TvIcon size={24} className="mx-auto mb-2 text-amber-500" />
-                  <p className="font-medium text-gray-800">Amazon Prime</p>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                  <GlobeIcon size={24} className="mx-auto mb-2 text-purple-500" />
-                  <p className="font-medium text-gray-800">More Options</p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-4 text-center">
-                Note: Streaming availability is for demonstration purposes and may not reflect actual availability.
-              </p>
             </div>
           </div>
         </div>

@@ -12,8 +12,7 @@ import {
   TagIcon, 
   TrashIcon, 
   UserIcon, 
-  VideoIcon,
-  ExternalLinkIcon
+  VideoIcon
 } from 'lucide-react';
 
 interface MovieCardProps {
@@ -36,14 +35,28 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
       day: 'numeric'
     });
   };
+
+  // Truncate synopsis to roughly 1/3 of original length
+  const truncateSynopsis = (text: string, maxLength: number = 75) => {
+    if (!text || text === 'N/A') return "No synopsis available";
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
   
   return (
     <div 
       className={cn(
-        "movie-card glass-card overflow-hidden transition-all duration-300",
+        "movie-card glass-card overflow-hidden transition-all duration-300 relative",
         isExpanded ? "col-span-2 sm:col-span-2 md:col-span-2" : "col-span-1"
       )}
     >
+      <Link 
+        to={`/movie/${movie.id}`}
+        className="absolute inset-0 z-10"
+        aria-label={`View details for ${movie.title}`}
+      >
+        <span className="sr-only">View details for {movie.title}</span>
+      </Link>
+      
       <div className="relative overflow-hidden">
         {/* Poster with gradient overlay */}
         <div className="relative h-48">
@@ -56,27 +69,16 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
         </div>
         
-        {/* Top overlay with status selector */}
-        <div className="absolute top-2 right-2 z-10">
+        {/* Top overlay with status selector - needs to be above the card link */}
+        <div className="absolute top-2 right-2 z-20" onClick={(e) => e.stopPropagation()}>
           <StatusSelector 
             currentStatus={movie.status} 
             onChange={handleStatusChange}
           />
         </div>
         
-        {/* View details link */}
-        <div className="absolute top-2 left-2 z-10">
-          <Link
-            to={`/movie/${movie.id}`}
-            className="p-1.5 bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full transition-colors"
-            title="View details"
-          >
-            <ExternalLinkIcon size={16} />
-          </Link>
-        </div>
-        
         {/* Bottom info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
+        <div className="absolute bottom-0 left-0 right-0 p-3 z-[5]">
           <h3 className="text-white font-semibold text-lg line-clamp-1">{movie.title}</h3>
           
           <div className="flex items-center gap-2 text-xs text-white/90 mt-1">
@@ -90,15 +92,19 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
             <div className="capitalize">{movie.type}</div>
           </div>
           
-          {/* Synopsis preview (only shown in collapsed state) */}
+          {/* Shortened synopsis preview */}
           <div className="mt-1 text-xs text-white/80 line-clamp-2">
-            {movie.plot || "No synopsis available"}
+            {truncateSynopsis(movie.plot)}
           </div>
           
-          {/* Expand/Collapse button */}
+          {/* Expand/Collapse button - needs to be above the card link */}
           <button 
-            className="mt-2 text-xs text-white/80 hover:text-white transition-colors underline"
-            onClick={() => setIsExpanded(!isExpanded)}
+            className="mt-2 text-xs text-white/80 hover:text-white transition-colors underline z-20 relative"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
           >
             {isExpanded ? 'Less details' : 'More details'}
           </button>
@@ -107,7 +113,7 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
       
       {/* Expanded details */}
       {isExpanded && (
-        <div className="p-4 space-y-3 animate-slide-up">
+        <div className="p-4 space-y-3 animate-slide-up relative z-[5]">
           <div className="flex flex-wrap gap-1">
             {movie.genre.split(',').map((genre, i) => (
               <span key={i} className="text-xs px-2 py-0.5 bg-gray-100 rounded-full">
@@ -118,7 +124,7 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
           
           <div className="space-y-2">
             <h4 className="text-sm font-medium text-gray-800">Synopsis</h4>
-            <p className="text-sm text-gray-700">{movie.plot || "No synopsis available"}</p>
+            <p className="text-sm text-gray-700">{truncateSynopsis(movie.plot, 150)}</p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -151,8 +157,12 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
           
           <div className="flex justify-end">
             <button 
-              className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors"
-              onClick={() => onRemove(movie.id)}
+              className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-colors z-20 relative"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRemove(movie.id);
+              }}
             >
               <TrashIcon size={16} />
             </button>

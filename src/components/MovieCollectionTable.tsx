@@ -19,11 +19,10 @@ import {
   XIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ExternalLinkIcon
 } from 'lucide-react';
 import StatusSelector from '@/components/StatusSelector';
 import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface MovieCollectionTableProps {
   movies: Movie[];
@@ -47,12 +46,20 @@ const MovieCollectionTable = ({
   const [sortKey, setSortKey] = useState<SortKey>('dateAdded');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
   
-  const toggleRow = (id: string) => {
+  const toggleRow = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
     setExpandedRows(prev => ({
       ...prev,
       [id]: !prev[id]
     }));
+  };
+
+  // Truncate synopsis to roughly 1/3 of original length
+  const truncateSynopsis = (text: string, maxLength: number = 120) => {
+    if (!text || text === 'N/A') return "No synopsis available";
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
   const filterOptions = [
@@ -102,6 +109,10 @@ const MovieCollectionTable = ({
       setSortKey(key);
       setSortDirection('asc');
     }
+  };
+
+  const navigateToMovie = (id: string) => {
+    navigate(`/movie/${id}`);
   };
 
   return (
@@ -155,7 +166,7 @@ const MovieCollectionTable = ({
       </div>
       
       {/* Movies table */}
-      {filteredMovies.length === 0 ? (
+      {movies.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100">
           <div className="bg-gray-100 w-16 h-16 flex items-center justify-center rounded-full mb-3">
             <FilmIcon size={24} className="text-gray-400" />
@@ -194,13 +205,20 @@ const MovieCollectionTable = ({
                     </div>
                   </TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                  <TableHead className="w-[70px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredMovies.map((movie) => (
+                {movies.map((movie) => (
                   <>
-                    <TableRow key={`row-${movie.id}`} className={expandedRows[movie.id] ? "border-b-0" : ""}>
+                    <TableRow 
+                      key={`row-${movie.id}`} 
+                      className={cn(
+                        expandedRows[movie.id] ? "border-b-0" : "",
+                        "cursor-pointer hover:bg-gray-50"
+                      )}
+                      onClick={() => navigateToMovie(movie.id)}
+                    >
                       <TableCell>
                         <div className="w-10 h-14 overflow-hidden rounded">
                           {movie.poster !== 'N/A' ? (
@@ -242,7 +260,7 @@ const MovieCollectionTable = ({
                           <span className="text-gray-400">N/A</span>
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <StatusSelector 
                           id={movie.id}
                           currentStatus={movie.status}
@@ -252,7 +270,7 @@ const MovieCollectionTable = ({
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => toggleRow(movie.id)}
+                            onClick={(e) => toggleRow(movie.id, e)}
                             className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-full transition-colors"
                             title={expandedRows[movie.id] ? "Hide details" : "Show details"}
                           >
@@ -262,15 +280,11 @@ const MovieCollectionTable = ({
                               <ChevronDownIcon size={16} />
                             )}
                           </button>
-                          <Link
-                            to={`/movie/${movie.id}`}
-                            className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors"
-                            title="View details"
-                          >
-                            <ExternalLinkIcon size={16} />
-                          </Link>
                           <button
-                            onClick={() => onRemoveMovie(movie.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRemoveMovie(movie.id);
+                            }}
                             className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
                             title="Remove from collection"
                           >
@@ -285,7 +299,7 @@ const MovieCollectionTable = ({
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <h4 className="text-sm font-medium text-gray-800">Synopsis</h4>
-                              <p className="text-sm text-gray-700">{movie.plot || "No synopsis available"}</p>
+                              <p className="text-sm text-gray-700">{truncateSynopsis(movie.plot)}</p>
                             </div>
                             <div className="space-y-2">
                               <h4 className="text-sm font-medium text-gray-800">Cast & Crew</h4>
