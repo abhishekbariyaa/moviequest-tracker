@@ -3,6 +3,7 @@ import { Movie, MovieStatus } from '@/types/movie';
 import StatusSelector from './StatusSelector';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 import { 
   CalendarIcon, 
   ClockIcon, 
@@ -11,7 +12,8 @@ import {
   TagIcon, 
   TrashIcon, 
   UserIcon, 
-  VideoIcon 
+  VideoIcon,
+  ExternalLinkIcon
 } from 'lucide-react';
 
 interface MovieCardProps {
@@ -60,6 +62,17 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
             currentStatus={movie.status} 
             onChange={handleStatusChange}
           />
+        </div>
+        
+        {/* View details link */}
+        <div className="absolute top-2 left-2 z-10">
+          <Link
+            to={`/movie/${movie.id}`}
+            className="p-1.5 bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full transition-colors"
+            title="View details"
+          >
+            <ExternalLinkIcon size={16} />
+          </Link>
         </div>
         
         {/* Bottom info overlay */}

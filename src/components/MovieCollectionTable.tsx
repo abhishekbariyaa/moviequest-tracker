@@ -16,10 +16,14 @@ import {
   SearchIcon, 
   SlidersIcon,
   ArrowUpDown,
-  XIcon
+  XIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ExternalLinkIcon
 } from 'lucide-react';
 import StatusSelector from '@/components/StatusSelector';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface MovieCollectionTableProps {
   movies: Movie[];
@@ -42,6 +46,14 @@ const MovieCollectionTable = ({
   const [searchFilter, setSearchFilter] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('dateAdded');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  
+  const toggleRow = (id: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   const filterOptions = [
     { value: 'all', label: 'All', count: movies.length },
@@ -182,70 +194,117 @@ const MovieCollectionTable = ({
                     </div>
                   </TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="w-[80px]">Actions</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredMovies.map((movie) => (
-                  <TableRow key={movie.id}>
-                    <TableCell>
-                      <div className="w-10 h-14 overflow-hidden rounded">
-                        {movie.poster !== 'N/A' ? (
-                          <img 
-                            src={movie.poster} 
-                            alt={movie.title} 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <FilmIcon size={16} className="text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className="max-w-[200px]">
-                        <div className="font-medium truncate">{movie.title}</div>
-                        {movie.franchise && (
-                          <div className="text-xs text-gray-500 truncate">
-                            {movie.franchise} franchise
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{movie.year}</TableCell>
-                    <TableCell>
-                      <div className="max-w-[150px] truncate">
-                        {movie.genre}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {movie.imdbRating !== 'N/A' ? (
-                        <div className="flex items-center">
-                          <span className="text-amber-500">★</span>
-                          <span className="ml-1">{movie.imdbRating}/10</span>
+                  <>
+                    <TableRow key={`row-${movie.id}`} className={expandedRows[movie.id] ? "border-b-0" : ""}>
+                      <TableCell>
+                        <div className="w-10 h-14 overflow-hidden rounded">
+                          {movie.poster !== 'N/A' ? (
+                            <img 
+                              src={movie.poster} 
+                              alt={movie.title} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                              <FilmIcon size={16} className="text-gray-400" />
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <span className="text-gray-400">N/A</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <StatusSelector 
-                        id={movie.id}
-                        currentStatus={movie.status}
-                        onChange={(status) => onStatusChange(movie.id, status)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => onRemoveMovie(movie.id)}
-                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
-                        title="Remove from collection"
-                      >
-                        <XIcon size={16} />
-                      </button>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <div className="max-w-[200px]">
+                          <div className="font-medium truncate">{movie.title}</div>
+                          {movie.franchise && (
+                            <div className="text-xs text-gray-500 truncate">
+                              {movie.franchise} franchise
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{movie.year}</TableCell>
+                      <TableCell>
+                        <div className="max-w-[150px] truncate">
+                          {movie.genre}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {movie.imdbRating !== 'N/A' ? (
+                          <div className="flex items-center">
+                            <span className="text-amber-500">★</span>
+                            <span className="ml-1">{movie.imdbRating}/10</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">N/A</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <StatusSelector 
+                          id={movie.id}
+                          currentStatus={movie.status}
+                          onChange={(status) => onStatusChange(movie.id, status)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => toggleRow(movie.id)}
+                            className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-full transition-colors"
+                            title={expandedRows[movie.id] ? "Hide details" : "Show details"}
+                          >
+                            {expandedRows[movie.id] ? (
+                              <ChevronUpIcon size={16} />
+                            ) : (
+                              <ChevronDownIcon size={16} />
+                            )}
+                          </button>
+                          <Link
+                            to={`/movie/${movie.id}`}
+                            className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors"
+                            title="View details"
+                          >
+                            <ExternalLinkIcon size={16} />
+                          </Link>
+                          <button
+                            onClick={() => onRemoveMovie(movie.id)}
+                            className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
+                            title="Remove from collection"
+                          >
+                            <XIcon size={16} />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    {expandedRows[movie.id] && (
+                      <TableRow key={`expanded-${movie.id}`} className="bg-gray-50">
+                        <TableCell colSpan={7} className="p-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-medium text-gray-800">Synopsis</h4>
+                              <p className="text-sm text-gray-700">{movie.plot || "No synopsis available"}</p>
+                            </div>
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-medium text-gray-800">Cast & Crew</h4>
+                              <div className="grid grid-cols-1 gap-2 text-sm">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-gray-700 font-medium">Director:</span>
+                                  <span className="text-gray-600">{movie.director}</span>
+                                </div>
+                                <div className="flex items-start gap-2">
+                                  <span className="text-gray-700 font-medium">Actors:</span>
+                                  <span className="text-gray-600">{movie.actors}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))}
               </TableBody>
             </Table>
