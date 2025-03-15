@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Movie, MovieStatus } from '@/types/movie';
 import { 
   Table, 
@@ -56,7 +55,6 @@ const MovieCollectionTable = ({
     }));
   };
 
-  // Truncate synopsis to roughly 1/3 of original length
   const truncateSynopsis = (text: string, maxLength: number = 120) => {
     if (!text || text === 'N/A') return "No synopsis available";
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
@@ -70,7 +68,6 @@ const MovieCollectionTable = ({
     { value: 'watched', label: 'Watched', count: movies.filter(m => m.status === 'watched').length }
   ];
 
-  // Filter movies
   let filteredMovies = movies.filter(movie => {
     const matchesSearch = searchFilter === '' || 
       movie.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
@@ -80,7 +77,6 @@ const MovieCollectionTable = ({
     return matchesSearch;
   });
 
-  // Sort movies
   filteredMovies = [...filteredMovies].sort((a, b) => {
     let comparison = 0;
     
@@ -121,7 +117,6 @@ const MovieCollectionTable = ({
 
   return (
     <div className="w-full">
-      {/* Filter and search controls */}
       <div className="flex flex-col md:flex-row gap-3 mb-4">
         <div className="flex space-x-1 overflow-x-auto py-2">
           {filterOptions.map((option) => (
@@ -169,7 +164,6 @@ const MovieCollectionTable = ({
         </div>
       </div>
       
-      {/* Movies table */}
       {filteredMovies.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100">
           <div className="bg-gray-100 w-16 h-16 flex items-center justify-center rounded-full mb-3">
