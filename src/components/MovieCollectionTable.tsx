@@ -70,7 +70,7 @@ const MovieCollectionTable = ({
     { value: 'watched', label: 'Watched', count: movies.filter(m => m.status === 'watched').length }
   ];
 
-  // Filter and sort movies
+  // Filter movies
   let filteredMovies = movies.filter(movie => {
     const matchesSearch = searchFilter === '' || 
       movie.title.toLowerCase().includes(searchFilter.toLowerCase()) ||
@@ -81,7 +81,7 @@ const MovieCollectionTable = ({
   });
 
   // Sort movies
-  filteredMovies.sort((a, b) => {
+  filteredMovies = [...filteredMovies].sort((a, b) => {
     let comparison = 0;
     
     switch(sortKey) {
@@ -92,11 +92,15 @@ const MovieCollectionTable = ({
         comparison = parseInt(a.year) - parseInt(b.year);
         break;
       case 'imdbRating':
-        comparison = parseFloat(a.imdbRating || '0') - parseFloat(b.imdbRating || '0');
+        const ratingA = parseFloat(a.imdbRating !== 'N/A' ? a.imdbRating : '0');
+        const ratingB = parseFloat(b.imdbRating !== 'N/A' ? b.imdbRating : '0');
+        comparison = ratingA - ratingB;
         break;
       case 'dateAdded':
         comparison = new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime();
         break;
+      default:
+        comparison = 0;
     }
     
     return sortDirection === 'asc' ? comparison : -comparison;
@@ -166,7 +170,7 @@ const MovieCollectionTable = ({
       </div>
       
       {/* Movies table */}
-      {movies.length === 0 ? (
+      {filteredMovies.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center bg-white/50 backdrop-blur-sm rounded-xl border border-gray-100">
           <div className="bg-gray-100 w-16 h-16 flex items-center justify-center rounded-full mb-3">
             <FilmIcon size={24} className="text-gray-400" />
@@ -188,20 +192,35 @@ const MovieCollectionTable = ({
                   <TableHead className="cursor-pointer" onClick={() => handleSort('title')}>
                     <div className="flex items-center">
                       Title
-                      <ArrowUpDown size={14} className="ml-1" />
+                      {sortKey === 'title' && (
+                        <span className="ml-1">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                      {sortKey !== 'title' && <ArrowUpDown size={14} className="ml-1" />}
                     </div>
                   </TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort('year')}>
                     <div className="flex items-center">
                       Year
-                      <ArrowUpDown size={14} className="ml-1" />
+                      {sortKey === 'year' && (
+                        <span className="ml-1">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                      {sortKey !== 'year' && <ArrowUpDown size={14} className="ml-1" />}
                     </div>
                   </TableHead>
                   <TableHead>Genre</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort('imdbRating')}>
                     <div className="flex items-center">
                       Rating
-                      <ArrowUpDown size={14} className="ml-1" />
+                      {sortKey === 'imdbRating' && (
+                        <span className="ml-1">
+                          {sortDirection === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                      {sortKey !== 'imdbRating' && <ArrowUpDown size={14} className="ml-1" />}
                     </div>
                   </TableHead>
                   <TableHead>Status</TableHead>
@@ -209,10 +228,9 @@ const MovieCollectionTable = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {movies.map((movie) => (
-                  <>
+                {filteredMovies.map((movie) => (
+                  <React.Fragment key={movie.id}>
                     <TableRow 
-                      key={`row-${movie.id}`} 
                       className={cn(
                         expandedRows[movie.id] ? "border-b-0" : "",
                         "cursor-pointer hover:bg-gray-50"
@@ -318,7 +336,7 @@ const MovieCollectionTable = ({
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>
