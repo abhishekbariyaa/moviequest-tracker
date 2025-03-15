@@ -77,6 +77,11 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
             <div className="capitalize">{movie.type}</div>
           </div>
           
+          {/* Synopsis preview (only shown in collapsed state) */}
+          <div className="mt-1 text-xs text-white/80 line-clamp-2">
+            {movie.plot || "No synopsis available"}
+          </div>
+          
           {/* Expand/Collapse button */}
           <button 
             className="mt-2 text-xs text-white/80 hover:text-white transition-colors underline"
@@ -98,7 +103,10 @@ const MovieCard = ({ movie, onStatusChange, onRemove }: MovieCardProps) => {
             ))}
           </div>
           
-          <p className="text-sm text-gray-700 line-clamp-3">{movie.plot}</p>
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-800">Synopsis</h4>
+            <p className="text-sm text-gray-700">{movie.plot || "No synopsis available"}</p>
+          </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
             <div className="flex items-center gap-2">
