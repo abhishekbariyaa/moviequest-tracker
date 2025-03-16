@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/popover";
 
 interface MovieSearchProps {
-  onAddMovie: (movie: MovieDetails, status: MovieStatus) => boolean;
+  onAddMovie: (movie: MovieDetails, status: MovieStatus) => Promise<boolean> | boolean;
 }
 
 const MovieSearch = ({ onAddMovie }: MovieSearchProps) => {
