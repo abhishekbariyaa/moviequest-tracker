@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 
 const Login = () => {
   const [searchParams] = useSearchParams();
-  const isRedirected = Boolean(
+  const hasAuthParams = Boolean(
     searchParams.get('access_token') || 
     searchParams.get('refresh_token') || 
     searchParams.get('type')
@@ -22,8 +22,8 @@ const Login = () => {
           <h1 className="text-3xl font-bold text-gray-900">MovieQuest</h1>
         </div>
         <p className="text-gray-600">
-          {isRedirected 
-            ? "Verifying your email..." 
+          {hasAuthParams 
+            ? "Verifying your login..." 
             : "Sign in to manage your personal movie collection"}
         </p>
       </div>

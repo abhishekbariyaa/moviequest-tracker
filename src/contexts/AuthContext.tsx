@@ -8,10 +8,10 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
   loading: boolean;
-  isEmailVerified: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +20,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,11 +32,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setSession(session);
         setUser(session?.user ?? null);
-        
-        // Check if user's email is confirmed
-        if (session?.user) {
-          setIsEmailVerified(session.user.email_confirmed_at !== null);
-        }
       } catch (err) {
         console.error('Session retrieval error:', err);
       } finally {
@@ -51,12 +45,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('Auth event:', event);
           setSession(session);
           setUser(session?.user ?? null);
-          
-          // Check if user's email is confirmed after any auth event
-          if (session?.user) {
-            setIsEmailVerified(session.user.email_confirmed_at !== null);
-          }
-          
           setLoading(false);
         }
       );
@@ -76,27 +64,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
+      // Using password sign in as fallback if needed
       const { error, data } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) throw error;
       
-      // Check if email is verified
-      if (data.user && data.user.email_confirmed_at === null) {
-        toast({
-          title: "Email not verified",
-          description: "Please check your email for the verification link",
-          variant: "destructive",
-        });
-        
-        // Sign out if email not verified
-        await supabase.auth.signOut();
-        throw new Error("Email not verified");
-      } else {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
-      }
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully signed in.",
+      });
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -109,35 +85,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string) => {
     try {
       setLoading(true);
-      const { error, data } = await supabase.auth.signUp({ 
-        email, 
-        password,
+      const { error } = await supabase.auth.signInWithOtp({ 
+        email,
         options: {
-          emailRedirectTo: window.location.origin + '/login',
+          shouldCreateUser: true,
         }
       });
       
       if (error) throw error;
       
-      if (data?.user?.identities?.length === 0) {
-        toast({
-          title: "Account already exists",
-          description: "Please sign in instead or reset your password",
-          variant: "destructive",
-        });
-        throw new Error("Account already exists");
-      } else {
-        toast({
-          title: "Verification email sent",
-          description: "Please check your email to verify your account",
-        });
-      }
+      toast({
+        title: "Verification code sent",
+        description: "Please check your email for the verification code",
+      });
+      
+      return;
     } catch (error: any) {
       toast({
-        title: "Error signing up",
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOtp = async (email: string, otp: string) => {
+    try {
+      setLoading(true);
+      const { error, data } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'email'
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Verification successful",
+        description: "You have been signed in successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Verification failed",
         description: error.message,
         variant: "destructive",
       });
@@ -168,9 +163,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     signIn,
     signUp,
+    verifyOtp,
     signOut,
     loading,
-    isEmailVerified,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

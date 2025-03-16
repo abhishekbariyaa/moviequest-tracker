@@ -1,66 +1,30 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2Icon, AlertTriangleIcon, CheckCircleIcon } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { Loader2Icon, MailIcon } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import OtpForm from './OtpForm';
 
 const AuthForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [verificationSuccess, setVerificationSuccess] = useState(false);
-  const { signIn, signUp, loading } = useAuth();
+  const [showOtpForm, setShowOtpForm] = useState(false);
+  const { signIn, signUp, verifyOtp, loading } = useAuth();
   const { toast } = useToast();
   const location = useLocation();
-
-  // Check for email confirmation success
-  useEffect(() => {
-    const checkEmailConfirmation = async () => {
-      const searchParams = new URLSearchParams(location.search);
-      
-      // Email confirmation process
-      if (searchParams.has('access_token') || 
-          searchParams.has('refresh_token') || 
-          searchParams.has('type')) {
-        try {
-          const { error } = await supabase.auth.getSession();
-          
-          if (error) {
-            throw error;
-          } else {
-            setVerificationSuccess(true);
-            toast({
-              title: "Email verified",
-              description: "Your email has been verified. You can now sign in.",
-              variant: "default",
-            });
-          }
-        } catch (error: any) {
-          console.error('Error handling verification:', error);
-          toast({
-            title: "Verification error",
-            description: error.message || "There was an error verifying your email.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-    
-    checkEmailConfirmation();
-  }, [location, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!email) {
       toast({
-        title: "Missing fields",
-        description: "Please fill in all required fields",
+        title: "Missing email",
+        description: "Please enter your email address",
         variant: "destructive",
       });
       return;
@@ -68,40 +32,47 @@ const AuthForm = () => {
 
     try {
       if (isSignUp) {
-        await signUp(email, password);
-        // Clear the form after signup
-        setEmail('');
-        setPassword('');
+        // For sign up, we'll use the OTP flow
+        await signUp(email);
+        setShowOtpForm(true);
       } else {
-        await signIn(email, password);
+        // For sign in, we'll also use OTP
+        await signUp(email);
+        setShowOtpForm(true);
       }
     } catch (error) {
-      // Error is handled in the auth context
       console.error('Auth error:', error);
     }
   };
+
+  const handleVerifyOtp = async (otp: string) => {
+    try {
+      await verifyOtp(email, otp);
+      setShowOtpForm(false);
+    } catch (error) {
+      console.error('OTP verification error:', error);
+    }
+  };
+
+  // Show OTP form if in verification mode
+  if (showOtpForm) {
+    return (
+      <div className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-xl border border-gray-200 shadow-sm">
+        <OtpForm 
+          email={email}
+          onVerify={handleVerifyOtp}
+          onCancel={() => setShowOtpForm(false)}
+          loading={loading}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-xl border border-gray-200 shadow-sm">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
         {isSignUp ? 'Create an account' : 'Sign in to your account'}
       </h2>
-      
-      {verificationSuccess && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md flex items-center gap-2 text-green-700">
-          <CheckCircleIcon className="h-5 w-5" />
-          <p>Email verified successfully! You can now sign in.</p>
-        </div>
-      )}
-      
-      {isSignUp && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md flex items-start gap-2 text-blue-700">
-          <AlertTriangleIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
-          <p className="text-sm">
-            After signing up, you'll need to verify your email address before you can sign in. Please check your inbox for the verification link.
-          </p>
-        </div>
-      )}
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
@@ -116,18 +87,6 @@ const AuthForm = () => {
           />
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-        </div>
-        
         <Button 
           type="submit" 
           className="w-full" 
@@ -136,10 +95,13 @@ const AuthForm = () => {
           {loading ? (
             <>
               <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-              {isSignUp ? 'Creating account...' : 'Signing in...'}
+              Sending verification code...
             </>
           ) : (
-            isSignUp ? 'Sign Up' : 'Sign In'
+            <>
+              <MailIcon className="mr-2 h-4 w-4" />
+              {isSignUp ? 'Sign Up with Email' : 'Sign In with Email'}
+            </>
           )}
         </Button>
       </form>
