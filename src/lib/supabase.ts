@@ -2,16 +2,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { type Database } from '@/types/supabase';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Use the provided Supabase credentials
+const supabaseUrl = "https://cscajnfmhqzcopbecirj.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzY2FqbmZtaHF6Y29wYmVjaXJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNDc5MzYsImV4cCI6MjA1NzcyMzkzNn0.lV5Sv7nYmdPBq4-1VmXA4IRW0bdeiYW2vH1-TsctuI4";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Supabase credentials are missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
-}
-
+// Create and export the Supabase client
 export const supabase = createClient<Database>(
-  supabaseUrl || 'https://placeholder-url.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseUrl,
+  supabaseAnonKey
 );
 
 // Helper function to check if Supabase is properly configured

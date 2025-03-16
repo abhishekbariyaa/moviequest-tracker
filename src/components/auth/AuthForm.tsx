@@ -155,20 +155,6 @@ const AuthForm = () => {
             : "Don't have an account? Sign up"}
         </button>
       </div>
-      
-      {/* Supabase credentials notice */}
-      {!import.meta.env.VITE_SUPABASE_URL && (
-        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md flex items-start gap-2 text-yellow-700">
-          <AlertTriangleIcon className="h-5 w-5 flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-medium">Missing Supabase credentials</p>
-            <p className="mt-1">
-              Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment 
-              variables for authentication to work.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

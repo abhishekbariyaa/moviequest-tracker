@@ -32,11 +32,6 @@ const Login = () => {
       
       <footer className="mt-12 text-center text-sm text-gray-500">
         <p>Track, organize and manage your movie watch list.</p>
-        {!import.meta.env.VITE_SUPABASE_URL && (
-          <p className="mt-2 text-amber-600">
-            ⚠️ Supabase credentials missing, authentication won't work
-          </p>
-        )}
       </footer>
     </div>
   );
