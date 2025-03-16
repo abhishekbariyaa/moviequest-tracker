@@ -34,6 +34,7 @@ const AuthForm = () => {
       }
     } catch (error) {
       // Error is handled in the auth context
+      console.error('Auth error:', error);
     }
   };
 

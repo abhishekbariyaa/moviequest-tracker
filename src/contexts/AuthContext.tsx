@@ -23,28 +23,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const setData = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error(error);
-      }
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    };
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        }
         setSession(session);
         setUser(session?.user ?? null);
+      } catch (err) {
+        console.error('Session retrieval error:', err);
+      } finally {
         setLoading(false);
       }
-    );
-
-    setData();
-
-    return () => {
-      subscription.unsubscribe();
     };
+
+    try {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      );
+
+      setData();
+
+      return () => {
+        subscription?.unsubscribe();
+      };
+    } catch (err) {
+      console.error('Auth state change error:', err);
+      setLoading(false);
+      return () => {}; // Return empty cleanup function
+    }
   }, []);
 
   const signIn = async (email: string, password: string) => {
