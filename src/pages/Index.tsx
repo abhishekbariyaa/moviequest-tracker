@@ -1,16 +1,13 @@
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import MovieSearch from '@/components/MovieSearch';
 import MovieCollection from '@/components/MovieCollection';
 import MovieCollectionTable from '@/components/MovieCollectionTable';
 import { useMovieCollection } from '@/hooks/useMovieCollection';
 import { MovieStatus } from '@/types/movie';
-import { FilmIcon, TableIcon, GridIcon, LogOutIcon, Loader2Icon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { FilmIcon, TableIcon, GridIcon, Loader2Icon } from 'lucide-react';
 
 const Index = () => {
-  const { user, signOut } = useAuth();
   const { 
     filteredMovies, 
     activeFilter, 
@@ -33,24 +30,6 @@ const Index = () => {
                 <FilmIcon size={20} />
               </div>
               <h1 className="text-xl font-semibold text-gray-900">MovieQuest</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              {user && (
-                <>
-                  <p className="text-sm text-gray-500 hidden md:block">
-                    {user.email}
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={signOut}
-                    className="flex items-center gap-1"
-                  >
-                    <LogOutIcon size={16} />
-                    <span className="hidden sm:inline">Sign out</span>
-                  </Button>
-                </>
-              )}
             </div>
           </div>
         </div>
