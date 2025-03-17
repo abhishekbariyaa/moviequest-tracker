@@ -1,17 +1,10 @@
 
 import React from 'react';
-import AuthForm from '@/components/auth/AuthForm';
 import { FilmIcon } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Login = () => {
-  const [searchParams] = useSearchParams();
-  const hasAuthParams = Boolean(
-    searchParams.get('access_token') || 
-    searchParams.get('refresh_token') || 
-    searchParams.get('type')
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col justify-center items-center px-4 py-12">
       <div className="mb-8 text-center">
@@ -22,13 +15,23 @@ const Login = () => {
           <h1 className="text-3xl font-bold text-gray-900">MovieQuest</h1>
         </div>
         <p className="text-gray-600">
-          {hasAuthParams 
-            ? "Verifying your login..." 
-            : "Sign in to manage your personal movie collection"}
+          Track, organize and manage your personal movie collection
         </p>
       </div>
       
-      <AuthForm />
+      <div className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-xl border border-gray-200 shadow-sm text-center">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          Welcome to MovieQuest
+        </h2>
+        <p className="mb-6 text-gray-600">
+          Your personal movie tracking application
+        </p>
+        <Link to="/">
+          <Button className="w-full mb-4">
+            Enter Application
+          </Button>
+        </Link>
+      </div>
       
       <footer className="mt-12 text-center text-sm text-gray-500">
         <p>Track, organize and manage your movie watch list.</p>
