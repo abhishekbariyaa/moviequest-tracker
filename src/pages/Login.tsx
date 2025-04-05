@@ -1,10 +1,18 @@
 
 import React from 'react';
 import { FilmIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthForm from '@/components/auth/AuthForm';
 
 const Login = () => {
+  const { user, loading } = useAuth();
+
+  // If user is already logged in, redirect to home page
+  if (user && !loading) {
+    return <Navigate to="/" />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col justify-center items-center px-4 py-12">
       <div className="mb-8 text-center">
@@ -19,19 +27,7 @@ const Login = () => {
         </p>
       </div>
       
-      <div className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-sm p-8 rounded-xl border border-gray-200 shadow-sm text-center">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-          Welcome to MovieQuest
-        </h2>
-        <p className="mb-6 text-gray-600">
-          Your personal movie tracking application
-        </p>
-        <Link to="/">
-          <Button className="w-full mb-4">
-            Enter Application
-          </Button>
-        </Link>
-      </div>
+      <AuthForm />
       
       <footer className="mt-12 text-center text-sm text-gray-500">
         <p>Track, organize and manage your movie watch list.</p>

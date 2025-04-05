@@ -6,17 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2Icon, MailIcon } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
 import OtpForm from './OtpForm';
 
 const AuthForm = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [showOtpForm, setShowOtpForm] = useState(false);
-  const { signIn, signUp, verifyOtp, loading } = useAuth();
+  const { signUp, verifyOtp, loading } = useAuth();
   const { toast } = useToast();
-  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,17 +28,16 @@ const AuthForm = () => {
     }
 
     try {
-      if (isSignUp) {
-        // For sign up, we'll use the OTP flow
-        await signUp(email);
-        setShowOtpForm(true);
-      } else {
-        // For sign in, we'll also use OTP
-        await signUp(email);
-        setShowOtpForm(true);
-      }
+      // For both sign up and sign in, we'll use the OTP flow
+      await signUp(email);
+      setShowOtpForm(true);
     } catch (error) {
       console.error('Auth error:', error);
+      toast({
+        title: "Authentication Error",
+        description: "There was a problem processing your request. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -51,6 +47,11 @@ const AuthForm = () => {
       setShowOtpForm(false);
     } catch (error) {
       console.error('OTP verification error:', error);
+      toast({
+        title: "Verification Failed",
+        description: "Invalid code. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

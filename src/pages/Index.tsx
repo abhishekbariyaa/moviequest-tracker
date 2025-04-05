@@ -5,7 +5,17 @@ import MovieCollection from '@/components/MovieCollection';
 import MovieCollectionTable from '@/components/MovieCollectionTable';
 import { useMovieCollection } from '@/hooks/useMovieCollection';
 import { MovieStatus } from '@/types/movie';
-import { FilmIcon, TableIcon, GridIcon, Loader2Icon } from 'lucide-react';
+import { FilmIcon, TableIcon, GridIcon, Loader2Icon, LogOutIcon, UserIcon } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Index = () => {
   const { 
@@ -19,6 +29,7 @@ const Index = () => {
   } = useMovieCollection();
   
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
+  const { user, signOut } = useAuth();
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -31,6 +42,26 @@ const Index = () => {
               </div>
               <h1 className="text-xl font-semibold text-gray-900">MovieQuest</h1>
             </div>
+            
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full bg-gray-100">
+                    <UserIcon size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>
+                    {user.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                    <LogOutIcon className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </header>
